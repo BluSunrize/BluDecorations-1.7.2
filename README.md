@@ -8,4 +8,4 @@ This is the mod's source code. Feel free to grab it and try to compile it yourse
 
 ##License
 This mod is licensed under [Creative Commons 3](http://creativecommons.org/licenses/by/3.0/).
-Short Version: You are free to use this mod and it's code. You may not monetize this. And be so kind as to say where you got it ;D
+Short Version: You are free to use this mod and it's code, but be so kind as to say where you got it ;D
