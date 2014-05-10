@@ -1,0 +1,25 @@
+# -- Blocks --
+tile.BluDec_CustomizeableDecoration.name=Custom Decoration Block
+#
+item.BluDec_Tool.0.name=Model Wrench
+item.BluDec_Tool.1.name=Particle Spraycan
+item.BluDec_Tool.2.name=Adjustable Instructions
+#
+gui.text.copyInstructions0=Used to store the Models and Particles of a Custom Decoration Block.
+gui.text.copyInstructions1=Rightclick on a block to store it, Shift+Rightclick to delete stored config.
+gui.text.copyInstructions2=Rightclick on a block with stored config to apply it.
+gui.text.storedTileXYZ=Stored Custom Decoration at 
+gui.text.shiftForModelConfig=Hold SHIFT to display Model-Configuration
+gui.text.ctrlForParticleConfig=Hold CTRL to display Particle-Configuration
+
+gui.text.lightValue=Light Emitted: %d
+gui.text.scale=Scale: %s
+gui.text.aabb=Bounding Box from %1$f; %2$f; %3$f to %4$f; %5$f; %6$f
+gui.text.orientation=Rotation: %d
+
+gui.text.renderElementText=§1Model:§7 %1$s; §1Part:§7 %2$s; §1Texture:§7 %3$s
+gui.text.particleElementText=§1Particle:§7 %s
+gui.text.translation=Translation: %1$s; %2$s; %3$s
+gui.text.rotation=Rotation: %1$s; %2$s; %3$s
+gui.text.colour=Colour: %1$s; %2$s; %3$s
+gui.text.alpha=Alpha: %s
