@@ -4,13 +4,24 @@ tile.BluDec_CustomizeableDecoration.name=Custom Decoration Block
 item.BluDec_Tool.0.name=Model Wrench
 item.BluDec_Tool.1.name=Particle Spraycan
 item.BluDec_Tool.2.name=Adjustable Instructions
+item.BluDec_Tool.3.name=Infinity Binoculars
 #
-gui.text.copyInstructions0=Used to store the Models and Particles of a Custom Decoration Block.
-gui.text.copyInstructions1=Rightclick on a block to store it, Shift+Rightclick to delete stored config.
-gui.text.copyInstructions2=Rightclick on a block with stored config to apply it.
+gui.text.copyInstructions0=Used to store the Models and Particles
+gui.text.copyInstructions1=of a Custom Decoration Block.
+gui.text.copyInstructions2=Rightclick on a block to store its config
+gui.text.copyInstructions3=Shift+Rightclick to delete stored config
+gui.text.copyInstructions4=Rightclick on with stored config to apply it.
 gui.text.storedTileXYZ=Stored Custom Decoration at 
 gui.text.shiftForModelConfig=Hold SHIFT to display Model-Configuration
 gui.text.ctrlForParticleConfig=Hold CTRL to display Particle-Configuration
+gui.text.makeRenderInfinite0=Rightclick on decoration
+gui.text.makeRenderInfinite1=to toggle infinite render bounds
+gui.text.makeRenderInfinite2=If the bounds are infinite,
+gui.text.makeRenderInfinite3=the block will be rendered,
+gui.text.makeRenderInfinite4=even if the bounding box is not in view
+
+gui.text.renderBounds0=Infinite Render Bounds enabled
+gui.text.renderBounds1=Infinite Render Bounds disabled
 
 gui.text.lightValue=Light Emitted: %d
 gui.text.scale=Scale: %s
@@ -23,3 +34,6 @@ gui.text.translation=Translation: %1$s; %2$s; %3$s
 gui.text.rotation=Rotation: %1$s; %2$s; %3$s
 gui.text.colour=Colour: %1$s; %2$s; %3$s
 gui.text.alpha=Alpha: %s
+
+gui.text.presetListInfo0=Click to replace current configuration
+gui.text.presetListInfo1=CTRL+Click to add to current configuration

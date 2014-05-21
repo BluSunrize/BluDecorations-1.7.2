@@ -11,6 +11,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import bludecorations.api.BluDecorationsApi;
 import bludecorations.api.ParticleElement;
 import bludecorations.common.BluDecorations;
 import bludecorations.common.TileEntityCustomizeableDecoration;
@@ -20,7 +21,10 @@ import bludecorations.common.network.PacketParticleWipe;
 public class GuiParticleCustomization extends GuiScreen
 {
 	protected TileEntityCustomizeableDecoration tileEntity;
+	private GuiTextboxAdvanced textField_saveConfig;
+
 	private GuiTextboxAdvanced textField_particlePath;
+	int presetModelListPage;
 	int page;
 
 	int xSize = 0;
@@ -32,6 +36,7 @@ public class GuiParticleCustomization extends GuiScreen
 		this.xSize = 256;
 		this.ySize = 256;
 		this.page = 0;
+		this.presetModelListPage = 0;
 	}
 
 	@Override
@@ -58,6 +63,12 @@ public class GuiParticleCustomization extends GuiScreen
 			if(textField_particlePath != null)
 				this.textField_particlePath = null;
 
+			this.textField_saveConfig = new GuiTextboxAdvanced(this.fontRendererObj, x+93, y+64, 86, 18);
+			this.textField_saveConfig.setTextColor(-1);
+			this.textField_saveConfig.setDisabledTextColour(-1);
+			this.textField_saveConfig.setEnableBackgroundDrawing(true);
+			this.textField_saveConfig.setMaxStringLength(2048);
+
 			this.buttonList.add(startID+0,new GuiPresetParticleList(startID+0, x+4, y+64, 80, 144, 5, this ));
 
 			this.buttonList.add(startID+1,new GuiButton(startID+1, x+4, y+ 40, 80, 20, "Prev Page"));
@@ -68,6 +79,8 @@ public class GuiParticleCustomization extends GuiScreen
 		}
 		else if(particleElements.length>0)
 		{
+			if(textField_saveConfig != null)
+				this.textField_saveConfig = null;
 			ParticleElement pe = particleElements[this.page-1];
 			if(pe!=null)
 			{
@@ -107,30 +120,28 @@ public class GuiParticleCustomization extends GuiScreen
 	{
 		int mX = Mouse.getEventX() * this.width / this.mc.displayWidth;
 		int mY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-		if(page > 0)
+		boolean cancelFurtherAction = false;
+		for (int l = 0; l < this.buttonList.size(); ++l)
 		{
-			boolean cancelFurtherAction = false;
-			for (int l = 0; l < this.buttonList.size(); ++l)
-			{
-				GuiButton guibutton = (GuiButton)this.buttonList.get(l);
-				if (guibutton instanceof GuiSliderAdvanced)
-					if(((GuiSliderAdvanced)guibutton).mouseOnButton(this.mc, mX, mY))
-						cancelFurtherAction = ((GuiSliderAdvanced)guibutton).keyEntered(par1, par2);
-			}
+			GuiButton guibutton = (GuiButton)this.buttonList.get(l);
+			if (guibutton instanceof GuiSliderAdvanced)
+				if(((GuiSliderAdvanced)guibutton).mouseOnButton(this.mc, mX, mY))
+					cancelFurtherAction = ((GuiSliderAdvanced)guibutton).keyEntered(par1, par2);
+		}
 
-			if(!cancelFurtherAction)
+		if(!cancelFurtherAction)
+		{
+			if(this.textField_particlePath!=null && this.textField_particlePath.textboxKeyTyped(par1, par2))
 			{
-				if(this.textField_particlePath!=null && this.textField_particlePath.textboxKeyTyped(par1, par2))
-				{
-				}
-				else
-				{
-					super.keyTyped(par1, par2);
-				}
+			}
+			else if(this.textField_saveConfig!=null && this.textField_saveConfig.textboxKeyTyped(par1, par2))
+			{
+			}
+			else
+			{
+				super.keyTyped(par1, par2);
 			}
 		}
-		else
-			super.keyTyped(par1, par2);
 		this.updateTile(false);
 	}
 
@@ -142,9 +153,10 @@ public class GuiParticleCustomization extends GuiScreen
 		{
 			if(textField_particlePath != null)
 				this.textField_particlePath.mouseClicked(par1, par2, par3);
-
-
 		}
+		else
+			if(textField_saveConfig != null)
+				this.textField_saveConfig.mouseClicked(par1, par2, par3);
 		this.updateTile(false);
 	}
 	@Override
@@ -190,6 +202,9 @@ public class GuiParticleCustomization extends GuiScreen
 
 			this.fontRendererObj.drawStringWithShadow("Class Path:", k+8, l+120, GraphicUtilities.isParticleClassValid(textField_particlePath.getText()) ? 14737632 : 9125927);
 		}
+		else
+			if(textField_saveConfig != null)
+				this.textField_saveConfig.drawTextBox();
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
@@ -207,7 +222,7 @@ public class GuiParticleCustomization extends GuiScreen
 	protected void actionPerformed(GuiButton button)
 	{
 		super.actionPerformed(button);
-		int maxPage = tileEntity.getRenderElements().length;
+		int maxPage = tileEntity.getParticleElements().length;
 		if(button.id == 0 && page > 0)
 		{
 			page--;
@@ -244,7 +259,7 @@ public class GuiParticleCustomization extends GuiScreen
 				ArrayList<ParticleElement> rList = new ArrayList<ParticleElement>();
 				for(ParticleElement r: tileEntity.getParticleElements())
 					rList.add(r);
-				rList.remove(tileEntity.getRenderElements()[page-1]);
+				rList.remove(tileEntity.getParticleElements()[page-1]);
 				BluDecorations.packetPipeline.sendToServer(new PacketParticleWipe(tileEntity.getWorldObj(), tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord));
 				tileEntity.setParticleElements(rList.toArray(new ParticleElement[rList.size()]));
 				updateTile(true);
@@ -261,10 +276,19 @@ public class GuiParticleCustomization extends GuiScreen
 			if(button.id == 5)
 			{
 				((GuiPresetParticleList)this.buttonList.get(4)).changePage(false);
+				this.presetModelListPage = ((GuiPresetModelList)this.buttonList.get(4)).page;
 			}
 			if(button.id == 6)
 			{
 				((GuiPresetParticleList)this.buttonList.get(4)).changePage(true);
+				this.presetModelListPage = ((GuiPresetModelList)this.buttonList.get(4)).page;
+			}
+			if(button.id == 7 && this.textField_saveConfig!=null)
+			{
+				String saveName = this.textField_saveConfig.getText();
+				BluDecorations.proxy.savePresetParticles(saveName, tileEntity.getParticleElements());
+				BluDecorationsApi.addPresetParticle(saveName, tileEntity.getParticleElements());
+				this.initGui();
 			}
 		}
 	}

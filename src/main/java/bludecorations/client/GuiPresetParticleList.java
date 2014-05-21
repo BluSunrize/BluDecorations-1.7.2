@@ -1,10 +1,16 @@
 package bludecorations.client;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+
+import org.lwjgl.input.Keyboard;
+
 import bludecorations.api.BluDecorationsApi;
 import bludecorations.api.ParticleElement;
 import bludecorations.common.BluDecorations;
@@ -15,7 +21,11 @@ import bludecorations.common.network.PacketTileRotationScale;
 
 public class GuiPresetParticleList extends GuiButton
 {
-
+	static List<String> tooltip = new ArrayList();
+	static{
+		tooltip.add("gui.text.presetListInfo0");
+		tooltip.add("gui.text.presetListInfo1");
+	}
 	int elementsPerPage;
 	int page = 0;
 	GuiParticleCustomization gui;
@@ -64,37 +74,9 @@ public class GuiPresetParticleList extends GuiButton
 
 				this.drawCenteredString(fontrenderer, s0, this.xPosition + this.width / 2, this.yPosition + startOffset + (heightofElement*i) +heightofElement/2-4, textCol);
 				this.drawCenteredString(fontrenderer, s1, this.xPosition + this.width / 2, this.yPosition + startOffset + (heightofElement*i) +heightofElement/2+4, textCol);
+				if(mY>=elemYMin && mY<elemYMax && mX>=xPosition && mX<xPosition+width)
+					GraphicUtilities.drawTooltip(gui, mX, mY, tooltip, Minecraft.getMinecraft().fontRenderer);
 			}
-
-			//			par1Minecraft.getTextureManager().bindTexture(buttonTextures);
-			//			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			//			this.field_82253_i = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
-			//			int k = this.getHoverState(this.field_82253_i);
-			//			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + k * 20, this.width / 2, this.height);
-			//			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
-			//			this.mouseDragged(par1Minecraft, par2, par3);
-			//			int l = 14737632;
-			//
-			//			if (!this.enabled)
-			//			{
-			//				l = -6250336;
-			//			}
-			//			else if (this.field_82253_i)
-			//			{
-			//				l = 16777120;
-			//			}
-			//			String format = this.displayFormat;
-			//			boolean invert = false;
-			//			if(format.contains("-"))
-			//			{
-			//				invert = true;
-			//				format = format.replaceAll("-", "");
-			//			}
-			//			DecimalFormat df = new DecimalFormat(format);
-			//
-			//			String toWrite = this.name +": "+df.format(invert && this.getValueScaled()!=0 ? this.getValueScaled()*(-1) : this.getValueScaled());
-			//
-			//			this.drawCenteredString(fontrenderer, toWrite, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
 		}
 	}
 
@@ -112,6 +94,9 @@ public class GuiPresetParticleList extends GuiButton
 				if(iElement >= BluDecorationsApi.presetParticles.size())
 					break;
 				Entry<String,ParticleElement[]> element = (Entry<String, ParticleElement[]>) BluDecorationsApi.presetParticles.get(iElement);
+				List<ParticleElement> newList = new ArrayList(Arrays.asList(element.getValue()));
+				if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+					newList.addAll(0,new ArrayList(Arrays.asList(gui.tileEntity.getParticleElements())));
 
 				int elemYMin = this.yPosition + startOffset + heightofElement*i;
 				int elemYMax = this.yPosition + startOffset + heightofElement*(i+1);
@@ -119,15 +104,11 @@ public class GuiPresetParticleList extends GuiButton
 				if(mY >= elemYMin && mY < elemYMax)
 				{
 					BluDecorations.packetPipeline.sendToServer(new PacketParticleWipe(gui.tileEntity.getWorldObj(), gui.tileEntity.xCoord, gui.tileEntity.yCoord, gui.tileEntity.zCoord));
-					for(int iRE=0; iRE<element.getValue().length; iRE++)
-						BluDecorations.packetPipeline.sendToServer(new PacketParticleElement(gui.tileEntity.getWorldObj(), gui.tileEntity.xCoord, gui.tileEntity.yCoord, gui.tileEntity.zCoord, iRE, element.getValue()[iRE]));
+					for(int iRE=0; iRE<newList.size(); iRE++)
+						BluDecorations.packetPipeline.sendToServer(new PacketParticleElement(gui.tileEntity.getWorldObj(), gui.tileEntity.xCoord, gui.tileEntity.yCoord, gui.tileEntity.zCoord, iRE, newList.get(iRE)));
 					BluDecorations.packetPipeline.sendToServer(new PacketTileRotationScale(gui.tileEntity.getWorldObj(), gui.tileEntity.xCoord, gui.tileEntity.yCoord, gui.tileEntity.zCoord, gui.tileEntity.getOrientation(), gui.tileEntity.getScale()));
 					BluDecorations.packetPipeline.sendToServer(new PacketTileAABBLight(gui.tileEntity.getWorldObj(), gui.tileEntity.xCoord, gui.tileEntity.yCoord, gui.tileEntity.zCoord, gui.tileEntity.getAABBLimits()[0], gui.tileEntity.getAABBLimits()[1], gui.tileEntity.getAABBLimits()[2], gui.tileEntity.getAABBLimits()[3], gui.tileEntity.getAABBLimits()[4], gui.tileEntity.getAABBLimits()[5], gui.tileEntity.getLightValue()));
-					gui.page = 0;
 					gui.initGui();
-					//					gui.tileEntity.setRenderElements(element.getValue());
-					//					gui.initGui();
-					//					gui.updateTile(true);
 				}
 			}
 

@@ -35,7 +35,7 @@ public class BluDecorations {
 
 	public static final Logger logger = Logger.getLogger("WitchingGadgets");
 	public static final PacketPipeline packetPipeline = new PacketPipeline();
-	
+
 	@SidedProxy(clientSide="bludecorations.client.ClientProxy", serverSide="bludecorations.common.CommonProxy")
 	public static CommonProxy proxy;
 
@@ -55,6 +55,9 @@ public class BluDecorations {
 		ItemTool = new ItemTool().setUnlocalizedName("BluDec_Tool");
 		GameRegistry.registerItem(ItemTool, ItemTool.getUnlocalizedName());
 		ItemTool.setCreativeTab(CreativeTabs.tabTools);
+
+		registerPresets();
+		proxy.grabPresetConfig(event);
 	}
 
 	@Mod.EventHandler
@@ -64,12 +67,22 @@ public class BluDecorations {
 		proxy.registerRenders();
 		packetPipeline.initialise();
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
-		
+
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockDecoration,8), "dgd","psp","dgd", 'd',new ItemStack(Items.dye,1,OreDictionary.WILDCARD_VALUE), 'g',new ItemStack(Items.glowstone_dust), 'p',new ItemStack(Blocks.glass_pane), 's',"stone"));
 		GameRegistry.addShapedRecipe(new ItemStack(ItemTool), "ii "," b "," ii", 'i',Items.iron_ingot, 'b',BlockDecoration);
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemTool,1,1), " f ","dbd","iii", 'i',Items.iron_ingot, 'b',BlockDecoration, 'd',"dyeBlue", 'f',Items.firework_charge));
 		GameRegistry.addShapedRecipe(new ItemStack(ItemTool,1,2), " b ","ppp", 'b',BlockDecoration, 'p',Items.paper);
+		GameRegistry.addShapedRecipe(new ItemStack(ItemTool,1,3), " ii","gbg"," ii", 'i',Items.iron_ingot, 'b',BlockDecoration, 'g',new ItemStack(Blocks.glass_pane));
+	}
 
+	@Mod.EventHandler
+	public static void postInit(FMLPostInitializationEvent event)
+	{
+		packetPipeline.postInitialise();
+	}
+
+	private void registerPresets()
+	{
 		BluDecorationsApi.addPresetModel("Simple Cube", new RenderElement().setModel("bludecorations","models/BluDecorations.obj").setTexture("minecraft","textures/blocks/stone.png").setPart("Cube_00").setTranslation(0.5,0,0.5).update());
 		BluDecorationsApi.addPresetModel("Stone Torch", new RenderElement().setModel("bludecorations","models/BluDecorations.obj").setTexture("bludecorations","textures/models/ZeldaTorch.png").setPart("Torch_07").setTranslation(0.5,0,0.5).update());
 		BluDecorationsApi.addPresetModel("Lantern", new RenderElement().setModel("bludecorations","models/BluDecorations.obj").setTexture("bludecorations","textures/models/ZeldaLantern.png").setPart("Lantern_04").setTranslation(0.5,0,0.5).update());
@@ -97,11 +110,5 @@ public class BluDecorations {
 		BluDecorationsApi.addPresetParticle("Flame (small, very low)", new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,0.19,0.5).update());
 		BluDecorationsApi.addPresetParticle("Flame (many, very high)", new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,1.19,0.5).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5625,1.19,0.5).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,1.19,0.5625).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.4375,1.19,0.5).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,1.19,0.4375).update());
 		BluDecorationsApi.addPresetParticle("Flame (many, high)", new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,1,0.5).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5625,1,0.5).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,1,0.5625).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.4375,1,0.5).update(), new ParticleElement().setParticleClass("net.minecraft.client.particle.EntityFlameFX").setTranslation(0.5,1,0.4375).update());
-	}
-
-	@Mod.EventHandler
-	public static void postInit(FMLPostInitializationEvent event)
-	{
-		packetPipeline.postInitialise();
 	}
 }

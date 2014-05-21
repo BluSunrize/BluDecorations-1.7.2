@@ -9,6 +9,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.EnumSkyBlock;
 import bludecorations.api.ParticleElement;
 import bludecorations.api.RenderElement;
@@ -16,7 +17,7 @@ import bludecorations.api.RenderElement;
 public class TileEntityCustomizeableDecoration extends TileEntity implements IInventory
 {
 	ItemStack[] inv = new ItemStack[27];
-	boolean hasInv = false;
+	boolean hasInv;
 
 	double yRotation;
 	double scale = 1;
@@ -29,11 +30,8 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	int lightValue = 0;
 	RenderElement[] renderElements = {};
 	ParticleElement[] particleElements = {};
-//	= {
-//			//new RenderElement("ionicTorch").setModel("/assets/bludecorations/models/BluDecorations.obj").setTexture("bludecorations:textures/models/ZeldaTorch.png").setPart("Torch_07").setTranslation(new double[]{0.5,0,0.5}).update(),
-//			new RenderElement("ionicTorch").setModel("/assets/bludecorations/models/BluDecorations.obj").setTexture("bludecorations:textures/models/ZeldaTorch.png").setPart("Torch_07").setTranslation(new double[]{0.5,0,0.5}).update()
-//	};
 
+	boolean infiniteRenderSize;
 
 	public RenderElement[] getRenderElements()
 	{
@@ -52,7 +50,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	{
 		this.particleElements = p;
 	}
-	
+
 	public double getOrientation()
 	{
 		return this.yRotation;
@@ -70,7 +68,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	{
 		this.scale = s;
 	}
-	
+
 	public float[] getAABBLimits()
 	{
 		return new float[]{xMin,xMax,yMin,yMax,zMin,zMax};
@@ -93,7 +91,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	{
 		this.lightValue = light;
 		for(EnumSkyBlock type : EnumSkyBlock.values())
-		this.worldObj.updateLightByType(type, xCoord, yCoord, zCoord);
+			this.worldObj.updateLightByType(type, xCoord, yCoord, zCoord);
 	}
 
 
@@ -106,6 +104,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	}
 	public void readCustomNBT(NBTTagCompound tags)
 	{
+		this.infiniteRenderSize = tags.getBoolean("infiniteRenderSize");
 		this.hasInv = tags.getBoolean("hasInv");
 		if(this.hasInv)
 		{
@@ -130,7 +129,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 		this.yMax = tags.getFloat("yMax");
 		this.zMin = tags.getFloat("zMin");
 		this.zMax = tags.getFloat("zMax");
-		
+
 		NBTTagList renderList = tags.getTagList("renderElements",10);
 		this.renderElements = new RenderElement[renderList.tagCount()];
 		for(int i = 0; i < renderList.tagCount(); i++)
@@ -145,11 +144,11 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 			NBTTagCompound elementTag = particleList.getCompoundTagAt(i);
 			this.particleElements[i] = ParticleElement.readFromNBT(elementTag);
 		}
-		
-//		if(worldObj != null)
-//			System.out.println( (worldObj.isRemote?"Client":"Server") + " World, custom Meta loaded");
-//		else
-//			System.out.println( "How can the world be null O_o");
+
+		//		if(worldObj != null)
+		//			System.out.println( (worldObj.isRemote?"Client":"Server") + " World, custom Meta loaded");
+		//		else
+		//			System.out.println( "How can the world be null O_o");
 	}
 
 	@Override
@@ -160,6 +159,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	}
 	public void writeCustomNBT(NBTTagCompound tags)
 	{
+		tags.setBoolean("infiniteRenderSize", this.infiniteRenderSize);
 		tags.setBoolean("hasInv", this.hasInv);
 		if(this.hasInv)
 		{
@@ -186,7 +186,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 		tags.setFloat("yMax",this.yMax);
 		tags.setFloat("zMin",this.zMin);
 		tags.setFloat("zMax",this.zMax);
-		
+
 		NBTTagList renderList = new NBTTagList();
 		for (int i = 0; i < this.renderElements.length; i++) {
 			if (this.renderElements[i] != null)
@@ -196,7 +196,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 			}
 		}
 		tags.setTag("renderElements", renderList);
-		
+
 		NBTTagList particleList = new NBTTagList();
 		for (int i = 0; i < this.particleElements.length; i++) {
 			if (this.particleElements[i] != null)
@@ -215,13 +215,13 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 		writeCustomNBT(tag);
 		return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, tag);
 	}
-	
+
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
 	{
 		readCustomNBT(packet.func_148857_g());
 		this.worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord, this.zCoord);
-//		this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
+		//		this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 	}
 
 	@Override
@@ -301,7 +301,7 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	{
 		return true;
 	}
-	
+
 	@Override
 	public String getInventoryName() {
 		return "CustomizeableDecorationInventory";
@@ -320,4 +320,12 @@ public class TileEntityCustomizeableDecoration extends TileEntity implements IIn
 	{
 	}
 
+	@Override
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		if(this.infiniteRenderSize)
+			return INFINITE_EXTENT_AABB;
+		else
+			return super.getRenderBoundingBox();
+	}
 }
